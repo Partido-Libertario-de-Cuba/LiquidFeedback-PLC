@@ -2,14 +2,16 @@
 
 Puerto local de [**LiquidFeedback**](https://www.public-software-group.org/mercurial/liquid_feedback_core/file) adaptado a la *Carta de Principios y Estatutos Orgánicos del Partido Libertario de Cuba*. Identidad gráfica alineada a [partidolibertariodecuba.org](https://partidolibertariodecuba.org/) (tinta `#0d141a` · fondo blanco · acento amarillo `#f1cd14`).
 
+> **Estado:** PoC + alpha-test en marcha. Stack actual: GitHub Pages (frontend) + Render free (backend) como path transitorio. Plan vigente: migración a hosting soberano $0 (Stack B). Ver [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) y [`docs/decisions/`](docs/decisions/).
+
 ## Arranque
 
 ```bash
-node server.js
+npm start
 # → http://localhost:4711
 ```
 
-Sin dependencias externas. Node ≥ 18.
+Sin dependencias npm. Node ≥ 22 (usa `node:sqlite` nativo).
 
 ## Modelo (LF-fiel)
 
@@ -76,28 +78,26 @@ POST /api/delegate                     { from, to, scope: global|celula|issue, t
 POST /api/revoke                       { delegationId, from }
 POST /api/issue                        abrir asunto nuevo con su primera iniciativa
 POST /api/initiative                   añadir iniciativa competidora a un asunto
-POST /api/reset                        rehace db.json desde seed
+POST /api/reset                        purga la base y recarga seed
 ```
 
 ## Stack
 
-- **Node.js** (runtime, cero dependencias npm)
-- **HTTP nativo** (`node:http`, `node:fs`)
-- **JSON** como persistencia (LF usa PostgreSQL; aquí JSON por localhost portátil)
-- **SPA vanilla** (sin framework, routing con History API)
-- **Instrument Serif · Inter · IBM Plex Mono** (tipografía editorial + institucional)
+- **Node.js ≥ 22** — runtime, cero dependencias npm
+- **HTTP nativo** (`node:http`) — servidor sin framework
+- **SQLite vía `node:sqlite`** — persistencia en un solo archivo (`db.sqlite`) con WAL, FK, índices selectivos. Ver [ADR-004](docs/decisions/0004-persistencia-sqlite.md)
+- **SPA vanilla** — sin framework, routing con History API + `<base>` dinámico
+- **Instrument Serif · Inter · IBM Plex Mono** — tipografía editorial
 
-LiquidFeedback de referencia está construido sobre Lua + Moonbridge + PostgreSQL con lógica extensa en PL/pgSQL. Este puerto replica el **modelo de datos y las reglas**, no el stack operativo — diseñado para ser inspeccionable y extensible con un solo `node server.js`.
+LiquidFeedback de referencia está construido sobre Lua + Moonbridge + PostgreSQL con lógica extensa en PL/pgSQL. Este puerto replica el **modelo de datos y las reglas**, no el stack operativo — diseñado para ser inspeccionable y extensible con un solo `npm start`.
 
-## Despliegue (PoC)
+## Despliegue actual (transitorio)
 
-Frontend estático en **GitHub Pages**, backend Node en **Render**. El cliente
-detecta el dominio y enruta la API al backend remoto cuando se sirve desde
-`*.github.io`; localmente todo sigue siendo relativo.
+Frontend estático en **GitHub Pages**, backend Node en **Render free**. El cliente detecta el dominio y enruta la API al backend remoto cuando se sirve desde `*.github.io`; localmente todo sigue siendo relativo. Esta configuración es **un punto de partida para validar UX y pipeline**, no la arquitectura objetivo. Ver [ADR-002](docs/decisions/0002-deploy-transitorio-gh-pages-render.md) y [ADR-003](docs/decisions/0003-stack-b-camino-soberano.md).
 
 ```
-GitHub Pages  ──fetch + CORS──▶  Render (Node + db.json efímero)
-public/                          server.js
+GitHub Pages  ──fetch + CORS──▶  Render (Node + SQLite efímero)
+public/                          server.js + db.js + schema.sql
 ```
 
 ### Frontend — GitHub Pages
@@ -106,9 +106,7 @@ public/                          server.js
 2. `git push` a `main` dispara `.github/workflows/deploy-pages.yml`.
 3. URL pública: `https://partido-libertario-de-cuba.github.io/LiquidFeedback-PLC/`
 
-El workflow copia `public/` y genera `404.html` para que GH Pages sirva la
-SPA en rutas profundas (Pages devuelve 404.html para paths inexistentes; al
-ser idéntico a index.html, el cliente bootea y enruta).
+El workflow copia `public/` y genera `404.html` para que GH Pages sirva la SPA en rutas profundas (Pages devuelve 404.html para paths inexistentes; al ser idéntico a index.html, el cliente bootea y enruta).
 
 ### Backend — Render
 
@@ -118,18 +116,28 @@ ser idéntico a index.html, el cliente bootea y enruta).
 
 **Caveats del plan free:**
 - Duerme tras 15 min sin tráfico → cold start ~30 s en la primera petición.
-- Disco efímero: `db.json` se regenera desde `seed.js` en cada redeploy o
-  reinicio. Para persistencia real → plan paid + Disk, o migrar a Postgres.
+- Disco efímero: `db.sqlite` se regenera desde `seed.js` en cada redeploy o reinicio. **No apto para alpha vinculante.** El plan es migrar a Stack B con Litestream para durabilidad.
 
 ### Rotar el host del backend
 
-`API_BASE` está hardcoded al inicio de `public/app.js`. Si cambias de Render
-a otro host (Fly, VPS propio, etc.) edita esa constante y vuelve a empujar.
+`API_BASE` está hardcoded al inicio de `public/app.js`. Si cambias de Render a otro host (Fly, Oracle Always Free, VPS propio, etc.) edita esa constante y vuelve a empujar.
 
-## Reiniciar
+## Camino vigente — Stack B (self-hosted, $0)
+
+Migración por fases hacia hosting soberano. Detalles en [`docs/decisions/0003-stack-b-camino-soberano.md`](docs/decisions/0003-stack-b-camino-soberano.md).
+
+| Fase | Estado | Qué |
+|---|---|---|
+| 1 — SQLite | ✅ Completa | Persistencia local en archivo. Ver [ADR-004](docs/decisions/0004-persistencia-sqlite.md). |
+| 2 — Auth | Pendiente | Magic links + WebAuthn opcional para afiliados reales. |
+| 3 — Deploy artifacts | Pendiente | Caddyfile + systemd + script. Depende de host (Oracle vs Pi vs VPS — pendiente decisión). |
+| 4 — Backup duradero | Pendiente | Litestream replicando `db.sqlite` a Storj (25 GB free, sharded). |
+| 5 — Censura | Pendiente | Servicio `.onion` paralelo + DNS soberano. |
+
+## Reiniciar la base local
 
 ```bash
-rm db.json && node server.js
+rm db.sqlite db.sqlite-wal db.sqlite-shm && npm start
 # o: curl -X POST http://localhost:4711/api/reset
 ```
 
