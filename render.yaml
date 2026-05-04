@@ -11,8 +11,8 @@ services:
     region: oregon
     branch: main
     buildCommand: ""
-    startCommand: node server.js
+    startCommand: node --no-warnings=ExperimentalWarning server.js
     healthCheckPath: /api/state
     envVars:
       - key: NODE_VERSION
-        value: "20"
+        value: "22"

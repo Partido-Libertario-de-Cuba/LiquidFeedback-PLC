@@ -1,5 +1,9 @@
 # Runtime DB — generated from seed.js on first start
 db.json
+db.sqlite
+db.sqlite-journal
+db.sqlite-shm
+db.sqlite-wal
 
 # Node
 node_modules/
