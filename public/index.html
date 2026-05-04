@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PLC · Ágora Digital — Democracia Líquida</title>
+<meta name="description" content="Plataforma de democracia líquida del Partido Libertario de Cuba. Voto directo, delegación revocable, transparencia radical.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230E0D0B'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' fill='%23EFE8D6' font-family='serif' font-size='11' font-style='italic'%3EP%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<!-- Masthead -->
+<header class="masthead">
+  <div class="shell">
+    <div class="masthead-grid">
+      <div class="masthead-left">
+        <span id="masthead-date">···</span> · <span id="masthead-loc">Florida · La Habana · Exilio</span>
+      </div>
+      <a href="/" class="masthead-logo" data-link>
+        <span class="mark">PLC</span><em>Ágora</em> <strong>Digital</strong>
+      </a>
+      <div class="masthead-right">
+        <span>Edición <span id="masthead-version">···</span></span>
+        <div class="switcher" id="switcher">
+          <button class="switcher-btn" id="switcher-btn">
+            <span id="switcher-label">Afiliado ···</span>
+          </button>
+          <div class="switcher-menu" id="switcher-menu"></div>
+        </div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a href="/"             data-link data-route="home">Ágora</a>
+      <a href="/carta"        data-link data-route="carta">Carta</a>
+      <a href="/celulas"      data-link data-route="celulas">Células</a>
+      <a href="/issues"       data-link data-route="issues">Asuntos</a>
+      <a href="/delegaciones" data-link data-route="delegaciones">Delegaciones</a>
+      <a href="/auditoria"    data-link data-route="auditoria">Auditoría</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Main view rendered here -->
+<main id="view"></main>
+
+<!-- Footer -->
+<footer class="pie">
+  <div class="shell">
+    <div class="pie-grid">
+      <div>
+        <p class="motto">&ldquo;La soberanía reside enteramente en el individuo.&rdquo;</p>
+        <p style="font-family:var(--mono);font-size:11px;letter-spacing:.1em;line-height:1.6;">
+          Partido Libertario de Cuba<br>
+          Domicilio legal: Florida, EE.UU.<br>
+          Sedes: La Habana, Santiago, Miami, Madrid.
+        </p>
+      </div>
+      <div>
+        <h4>Plataforma</h4>
+        <a href="/carta" data-link>Carta de Principios</a>
+        <a href="/celulas" data-link>Células Internas</a>
+        <a href="/issues" data-link>Asuntos Abiertos</a>
+        <a href="/delegaciones" data-link>Gestionar Delegación</a>
+      </div>
+      <div>
+        <h4>Transparencia</h4>
+        <a href="/auditoria" data-link>Bitácora Pública</a>
+        <a href="/api/state">API · /state</a>
+        <a href="https://www.public-software-group.org/mercurial/liquid_feedback_core/file" target="_blank">LiquidFeedback Core</a>
+        <a href="https://partidolibertariodecuba.org/" target="_blank">partidolibertariodecuba.org ↗</a>
+      </div>
+      <div>
+        <h4>Principios</h4>
+        <a>Autopropiedad vital</a>
+        <a>Propiedad privada</a>
+        <a>No Agresión</a>
+        <a>Libertad económica</a>
+        <a>Autodefensa</a>
+      </div>
+    </div>
+    <div class="colophon">
+      <span>Prototipo · Construido sobre los principios del Artículo 12</span>
+      <span id="colophon-genesis">Génesis · ···</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="/app.js" type="module"></script>
+</body>
+</html>

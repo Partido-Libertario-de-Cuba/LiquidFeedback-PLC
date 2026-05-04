@@ -1,0 +1,22 @@
+{
+  "name": "liquidfeedback-plc",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Ágora Digital del Partido Libertario de Cuba — puerto local de LiquidFeedback adaptado a la Carta de Principios y Estatutos del PLC.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Partido-Libertario-de-Cuba/LiquidFeedback-PLC.git"
+  },
+  "homepage": "https://github.com/Partido-Libertario-de-Cuba/LiquidFeedback-PLC#readme",
+  "bugs": {
+    "url": "https://github.com/Partido-Libertario-de-Cuba/LiquidFeedback-PLC/issues"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
