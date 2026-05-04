@@ -89,6 +89,43 @@ POST /api/reset                        rehace db.json desde seed
 
 LiquidFeedback de referencia está construido sobre Lua + Moonbridge + PostgreSQL con lógica extensa en PL/pgSQL. Este puerto replica el **modelo de datos y las reglas**, no el stack operativo — diseñado para ser inspeccionable y extensible con un solo `node server.js`.
 
+## Despliegue (PoC)
+
+Frontend estático en **GitHub Pages**, backend Node en **Render**. El cliente
+detecta el dominio y enruta la API al backend remoto cuando se sirve desde
+`*.github.io`; localmente todo sigue siendo relativo.
+
+```
+GitHub Pages  ──fetch + CORS──▶  Render (Node + db.json efímero)
+public/                          server.js
+```
+
+### Frontend — GitHub Pages
+
+1. Settings → Pages → *Build and deployment* → **Source: GitHub Actions**.
+2. `git push` a `main` dispara `.github/workflows/deploy-pages.yml`.
+3. URL pública: `https://partido-libertario-de-cuba.github.io/LiquidFeedback-PLC/`
+
+El workflow copia `public/` y genera `404.html` para que GH Pages sirva la
+SPA en rutas profundas (Pages devuelve 404.html para paths inexistentes; al
+ser idéntico a index.html, el cliente bootea y enruta).
+
+### Backend — Render
+
+1. https://dashboard.render.com → **New** → **Blueprint** → conectar este repo.
+2. Render detecta `render.yaml` y crea el web service `liquidfeedback-plc`.
+3. URL: `https://liquidfeedback-plc.onrender.com`
+
+**Caveats del plan free:**
+- Duerme tras 15 min sin tráfico → cold start ~30 s en la primera petición.
+- Disco efímero: `db.json` se regenera desde `seed.js` en cada redeploy o
+  reinicio. Para persistencia real → plan paid + Disk, o migrar a Postgres.
+
+### Rotar el host del backend
+
+`API_BASE` está hardcoded al inicio de `public/app.js`. Si cambias de Render
+a otro host (Fly, VPS propio, etc.) edita esa constante y vuelve a empujar.
+
 ## Reiniciar
 
 ```bash

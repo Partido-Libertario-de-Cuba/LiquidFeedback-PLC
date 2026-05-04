@@ -1,0 +1,18 @@
+# Render Blueprint — backend de LiquidFeedback-PLC
+# Conecta el repo en https://dashboard.render.com/blueprints y elige main.
+# El plan free duerme tras 15 min sin tráfico (cold start ~30s) y el disco
+# es efímero: db.json se regenera desde seed.js en cada reinicio. Para
+# persistencia real, mover a plan paid + Disk, o a Postgres.
+services:
+  - type: web
+    name: liquidfeedback-plc
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: ""
+    startCommand: node server.js
+    healthCheckPath: /api/state
+    envVars:
+      - key: NODE_VERSION
+        value: "20"

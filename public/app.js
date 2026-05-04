@@ -1,6 +1,13 @@
 // PLC Ágora — cliente SPA con modelo LiquidFeedback
 import { CARTA } from './carta-data.js';
 
+// Cuando se sirve desde GitHub Pages el sitio vive bajo /<repo>/ y la API
+// corre en otro dominio (Render). Localmente todo es relativo a /.
+const ON_GH_PAGES = location.hostname.endsWith('.github.io');
+const BASE_PATH = ON_GH_PAGES ? '/LiquidFeedback-PLC' : '';
+const API_BASE  = ON_GH_PAGES ? 'https://liquidfeedback-plc.onrender.com' : '';
+const stripBase = (p) => (BASE_PATH && p.startsWith(BASE_PATH) ? p.slice(BASE_PATH.length) || '/' : p);
+
 const state = { data: null, currentAffiliate: null, ballotDraft: {} };
 const $ = (sel, root = document) => root.querySelector(sel);
 
@@ -52,7 +59,7 @@ const DIRECTIVE_LABEL = { must: 'debe', should: 'debería', must_not: 'no debe',
 
 // ========== API ==========
 async function api(path, opts = {}) {
-  const r = await fetch(path, {
+  const r = await fetch(API_BASE + path, {
     ...opts,
     headers: { 'content-type': 'application/json', ...(opts.headers || {}) },
     body: opts.body ? JSON.stringify(opts.body) : undefined,
@@ -131,7 +138,7 @@ function renderMasthead() {
   }
 
   // Nav active
-  const path = location.pathname;
+  const path = stripBase(location.pathname);
   for (const a of document.querySelectorAll('.nav a')) {
     const r = a.getAttribute('data-route');
     let active = false;
@@ -153,8 +160,9 @@ document.addEventListener('click', () => $('#switcher').classList.remove('open')
 
 // ========== ROUTING ==========
 function go(path) {
-  if (path === location.pathname + location.search) return;
-  history.pushState({}, '', path);
+  const target = BASE_PATH + path;
+  if (target === location.pathname + location.search) return;
+  history.pushState({}, '', target);
   render();
 }
 
@@ -1363,7 +1371,7 @@ function render() {
   renderMasthead();
   const view = $('#view');
   view.innerHTML = '';
-  const path = location.pathname;
+  const path = stripBase(location.pathname);
 
   let content;
   if (path === '/' || path === '') content = viewHome();
@@ -1384,6 +1392,12 @@ function render() {
 
 // ========== Boot ==========
 (async () => {
+  // Reescribe anclas estáticas que apuntan a /api/* cuando la API vive en otro dominio.
+  if (API_BASE) {
+    document.querySelectorAll('a[href^="/api/"]').forEach(a => {
+      a.href = API_BASE + a.getAttribute('href');
+    });
+  }
   try {
     await loadState();
     render();

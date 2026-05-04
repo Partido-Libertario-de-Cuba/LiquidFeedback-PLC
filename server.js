@@ -212,8 +212,18 @@ function suggestionStats(s, totalAffiliates) {
 }
 
 // ========== HTTP UTILITIES ==========
+// CORS abierto: la PoC sirve la SPA tanto desde el propio backend como desde
+// GitHub Pages en otro dominio. No hay cookies ni auth basada en sesión, así
+// que `*` es seguro. Cuando se restrinja origen, fijar al dominio de Pages.
+const CORS = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'GET, POST, OPTIONS',
+  'access-control-allow-headers': 'content-type',
+  'access-control-max-age': '86400',
+};
+
 function sendJSON(res, status, data) {
-  res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+  res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...CORS });
   res.end(JSON.stringify(data));
 }
 
@@ -249,6 +259,11 @@ const server = createServer(async (req, res) => {
   const path = url.pathname;
 
   if (!path.startsWith('/api/')) return serveStatic(req, res);
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, CORS);
+    return res.end();
+  }
 
   const db = await loadDB();
 
